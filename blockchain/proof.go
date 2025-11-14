@@ -1,43 +1,22 @@
 package blockchain
 
-import (
-	"bytes"
-	"crypto/sha256"
-)
+import "math/big"
 
-type BlockChain struct {
-	blocks []*Block
+// Take the data from the block
+
+// create a counter (nonce) which starts at 0
+
+// create a hash of the data plus the counter
+
+// check the hash to see if it meets a set of requirements
+
+// Requirements:
+// The First few bytes must contain 0s
+
+const Difficulty = 18
+
+type ProofOfWork struct {
+	Block *Block
+	Target *big.Int
 }
 
-type Block struct {
-	Hash     []byte
-	Data     []byte
-	PrevHash []byte
-	Nonce    int
-}
-
-func (b *Block) DeriveHash() []byte {
-	info := bytes.Join([][]byte{b.Data, b.PrevHash}, []byte{})
-	hash := sha256.Sum256(info)
-	b.Hash = hash[:]
-}
-
-func CreateBlock(data string, prevHash []byte) *Block {
-	block := &Block{[]byte{}, []byte(data), prevHash, 0}
-	block.Hash = block.DeriveHash()
-	return block
-}
-
-func (chain *BlockChain) AddBlock(data string) {
-	prevBlock := chain.blocks[len(chain.blocks)-1]
-	new := CreateBlock(data, prevBlock.Hash)
-	chain.blocks = append(chain.blocks, new)
-}
-
-func Genesis() *Block {
-	return CreateBlock("Genesis", []byte{})
-}
-
-func InitBlockChain() *BlockChain {
-	return &BlockChain{[]*Block{Genesis()}}
-}
