@@ -84,3 +84,28 @@ func (chain *BlockChain) AddBlock(data string) {
 
 	Handle(err)
 }
+
+
+func (chain *BlockChain) Iterator() *BlockChainIterator {
+	return &BlockChainIterator{chain.LastHash, chain.Database}
+}
+
+func (iter *BlockChainIterator) Next() *Block {
+	var block *Block
+
+	err := iter.Database.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(iter.CurrentHash)
+		Handle(err)
+		encodedBlock, err := item.ValueCopy(nil)
+		Handle(err)
+		block = Deserialize(encodedBlock)
+
+		return err
+	})
+
+	Handle(err)
+
+	iter.CurrentHash = block.PrevHash
+
+	return block
+}
